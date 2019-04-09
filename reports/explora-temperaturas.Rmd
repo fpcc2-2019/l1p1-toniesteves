@@ -33,24 +33,27 @@ cg = climas %>%
 jp = climas %>% 
     filter(cidade == "João Pessoa")
 
-tmedia_cg = cg %>%
+climas %>% 
     ggplot(aes(x = tmedia)) + 
-    geom_histogram(binwidth = 0.2, color = "#F6511D", fill = "white") +
-    labs(x="Temperatura Média")
-
-tmedia_jp = jp %>%
-    ggplot(aes(x = tmedia)) + 
-    geom_histogram(binwidth = 0.2, color = "#F6511D", fill = "white")
-
-grid.arrange(tmedia_cg, tmedia_jp, ncol = 2)
+    geom_histogram(binwidth = 0.1, color = "#00A6ED", fill = "white") + 
+    labs(x="Temperatura Média", y="Semanas") +
+    geom_rug(alpha = .1) + 
+    facet_wrap(~ cidade)
 
 
-cg %>%
-    # Nesse caso o R agrupa os dados por mes?
-    filter(ano >= 2009) %>% 
-    ggplot(aes(x = tmedia)) + 
-    geom_density(alpha = .4, fill = "salmon") + 
-    facet_wrap(~ mes)
+climas %>%
+    ggplot(aes(x = cidade, y = tmedia)) +
+    geom_boxplot(
+        width = .2, 
+        position = position_nudge(.2), 
+        outlier.colour = NA) +
+    labs(x="Cidades", y="Temperatura Média") + 
+    geom_jitter(
+        width = .05,
+        alpha = .4,
+        size = 1,
+        color = "brown"
+    )
 
 ```
 
@@ -58,6 +61,14 @@ cg %>%
 
 ### As temperaturas máximas semanais (o pico do calor) são tão diferentes quanto as médias? Mais?  
 
+```{r}
+cg %>%
+    # Nesse caso o R agrupa os dados por mes?
+    filter(ano >= 2009) %>%
+    ggplot(aes(x = tmedia)) +
+    geom_density(alpha = .4, fill = "salmon") +
+    facet_wrap(~ mes)
+```
 
 ### Quais os meses mais quentes e mais frios? 
 
