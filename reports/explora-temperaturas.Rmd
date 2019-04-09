@@ -46,6 +46,7 @@ grid.arrange(tmedia_cg, tmedia_jp, ncol = 2)
 
 
 cg %>%
+    # Nesse caso o R agrupa os dados por mes?
     filter(ano >= 2009) %>% 
     ggplot(aes(x = tmedia)) + 
     geom_density(alpha = .4, fill = "salmon") + 
