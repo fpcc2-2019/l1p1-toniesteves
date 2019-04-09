@@ -11,6 +11,7 @@ library(tidyverse)
 library(here)
 library(lubridate)
 library(ggbeeswarm)
+library(gridExtra)
 theme_set(theme_bw())
 ```
 
@@ -25,6 +26,34 @@ glimpse(climas)
 
 ### Onde é mais quente?
 
+```{r}
+cg = climas %>% 
+    filter(cidade == "Campina Grande") 
+
+jp = climas %>% 
+    filter(cidade == "João Pessoa")
+
+tmedia_cg = cg %>%
+    ggplot(aes(x = tmedia)) + 
+    geom_histogram(binwidth = 0.2, color = "#F6511D", fill = "white") +
+    labs(x="Temperatura Média")
+
+tmedia_jp = jp %>%
+    ggplot(aes(x = tmedia)) + 
+    geom_histogram(binwidth = 0.2, color = "#F6511D", fill = "white")
+
+grid.arrange(tmedia_cg, tmedia_jp, ncol = 2)
+
+
+cg %>%
+    filter(ano >= 2009) %>% 
+    ggplot(aes(x = tmedia)) + 
+    geom_density(alpha = .4, fill = "salmon") + 
+    facet_wrap(~ mes)
+
+```
+
+
 
 ### As temperaturas máximas semanais (o pico do calor) são tão diferentes quanto as médias? Mais?  
 
@@ -34,6 +63,12 @@ glimpse(climas)
 
 ### Qual foi o São João  mais frio de CG que está nos nossos dados?
 
+```{r}
+# filter(ano >= 2008) %>% 
+#     ggplot(aes(x = tmedia)) + 
+#     geom_density(alpha = .4, fill = "salmon") + 
+#     facet_wrap(~ ano)
+```
 
 
 ## Chuva
