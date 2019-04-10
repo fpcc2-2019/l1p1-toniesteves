@@ -33,42 +33,70 @@ cg = climas %>%
 jp = climas %>% 
     filter(cidade == "João Pessoa")
 
+cg_plots = cg %>%
+    ggplot(aes(x = "", y = tmedia)) +
+    labs(x="Campina Grande", y="") +
+    geom_jitter(
+        width = .5,
+        alpha = .5,
+        size = 1,
+        height = 0.1,
+        color = "grey"
+    )+
+    coord_flip() 
+
+jp_plots = jp %>%
+    ggplot(aes(x="", y = tmedia)) +
+    labs(x="João Pessoa", y="") +
+    geom_jitter(
+        width = .8,
+        alpha = .5,
+        size = 1,
+        height = 0.1,
+        color = "orange"
+    )+
+    coord_flip() 
+
+grid.arrange(cg_plots, jp_plots, ncol = 2, bottom="Temperatura Média")
+```
+
+Inicialmente foi efetuada uma visualizãção geral dos dados distribuidos sobre a média. É possivel observar uma concentração dos pontos sobre entre 25 e 26 graus para a cidade de Campina Grande e entre 27 e 29 graus para cidade de João Pessoa.
+
+
+```{r}
 climas %>% 
     ggplot(aes(x = tmedia)) + 
-    geom_histogram(binwidth = 0.1, color = "#00A6ED", fill = "white") + 
-    labs(x="Temperatura Média", y="Semanas") +
+    geom_histogram(aes(y =..density..), binwidth = 0.5, color = "#de8f5d", fill = "white") + 
+    labs(x="Temperatura Média", y="") +
     geom_rug(alpha = .1) + 
+    geom_density(colour="#62A0CA") +
     facet_wrap(~ cidade)
+```
 
+Através do histograma acima é possível observar certa assimetria nas distribuições.A distribuição de temperatura média na cidade de Campina Grande possui uma assimetria com cauda maior à direita. Já a distribuição de temperatura para a cidade de João Pessoa possui uma assimetria com cauda maior a esquerda. O ponto de grande expressividade na distribuição fica realmente entre os 25 e os 26 graus.
 
+```{r}
 climas %>%
     ggplot(aes(x = cidade, y = tmedia)) +
     geom_boxplot(
         width = .2, 
-        position = position_nudge(.2), 
+        position = position_nudge(.2),
         outlier.colour = NA) +
     labs(x="Cidades", y="Temperatura Média") + 
     geom_jitter(
         width = .05,
-        alpha = .4,
+        alpha = .6,
         size = 1,
-        color = "brown"
+        color = "orange"
     )
 
 ```
 
+A distribuição acima nos permite uma melhor visualização da distribuição dos pontos apresentados. É possivel observar o quão dispersos estão os pontos sob a escala da temperatura. Por fim João Pessoa aparece com temperatura média mais elevada que Campina Grande por 3 graus aproximadamente.
 
 
 ### As temperaturas máximas semanais (o pico do calor) são tão diferentes quanto as médias? Mais?  
 
-```{r}
-cg %>%
-    # Nesse caso o R agrupa os dados por mes?
-    filter(ano >= 2009) %>%
-    ggplot(aes(x = tmedia)) +
-    geom_density(alpha = .4, fill = "salmon") +
-    facet_wrap(~ mes)
-```
 
 ### Quais os meses mais quentes e mais frios? 
 
@@ -76,12 +104,29 @@ cg %>%
 ### Qual foi o São João  mais frio de CG que está nos nossos dados?
 
 ```{r}
-# filter(ano >= 2008) %>% 
-#     ggplot(aes(x = tmedia)) + 
-#     geom_density(alpha = .4, fill = "salmon") + 
-#     facet_wrap(~ ano)
+cg %>%
+    filter(ano >= 1992 & mes == 6) %>%
+    ggplot(aes(x = tmin)) +
+    geom_density(alpha = .4, fill = "#00A6ED") +
+    labs(x="Temperatura Mínima", y="Densidade") +
+    facet_wrap(~ ano)
 ```
 
+Através do gráfico de densidade é possivel perceber padrões de densidade de temperaturas minimas ao longo dos anos. 
+Aparentemente a mínima mais expressiva aparece no ano de 2003.
+
+```{r}
+
+cg %>%
+    filter(ano == 2003 & mes >= 6 & mes <=7) %>%
+    ggplot(aes(x=semana, y=tmin)) +
+    geom_bar(stat="identity", fill="steelblue")+
+    labs(x="Semana", y="Temperatura Mínima")+
+    geom_text(aes(label=paste0(tmin,"ºC")), vjust=1.6, color="white")+
+    theme_minimal()
+```
+
+O histograma acima apresenta uma visão mais granular da temperatura minima entre os meses de junho e julho de 2003. Como forma de inspecionar por quanto tempo a temperatura se mantém minima e eliminando a possibilidade de a temperatura minima mais expressiva ser apenas um ponto isolado, o intervalo foi definido com um mês a mais, onde é possivel observar que a temperatura se praticamente a mesma com pequenas variações.
 
 ## Chuva
 
@@ -91,5 +136,90 @@ Como é a distribuição do volume de chuvas por semana em JP e CG? A chuva vari
 
 ### No geral, onde chove mais?
 
+```{r}
+cg = climas %>%
+    filter(cidade == "Campina Grande")
+
+jp = climas %>%
+    filter(cidade == "João Pessoa")
+
+hist_chuvas_cg = cg %>% 
+    ggplot(aes(x = chuva)) + 
+    labs(x="", y="Campina Grande")+
+    geom_histogram(binwidth = 10, color = "#F6511D", fill = "white")
+
+hist_chuvas_jp = jp %>% 
+    ggplot(aes(x = chuva)) + 
+    labs(x="", y="João Pessoa")+
+    geom_histogram(binwidth = .5, color = "#F6511D", fill = "white")  
+
+grid.arrange(hist_chuvas_cg, hist_chuvas_jp, ncol = 2, bottom="Quantidade de Chuva")
+```
+
+Apesar de ambas as distribuições de quantidade de chuvas semanais serem assimétricas com uma grande cauda a direita, é possível observar que João Pessoa tem um volume muito superior de chuvas.
+
+```{r}
+climas %>% 
+    ggplot(aes(x = cidade, y = chuva, color = cidade)) + 
+    labs(x="Quantidade de Chuva", y="Cidade")+
+    geom_quasirandom(alpha = .5, size = 1) 
+
+```
+
+É interessante observar que ambas as ditribuições tem uma concetração de valores muito expressiva no valor 0. Isso deve-se a falta a ausência de chuvas para este período. Uma outra interpretação para essa expressividade é a possibilidade de ausência de dados observaveis para esse período. Na distribuição seguinte efetuamos um filtro para eliminar a possível ocorrencia de dados não atribuidos ou sem valor expressivo.
+
+```{r}
+cg = climas %>%
+    filter(!is.na(chuva))%>%
+    filter(cidade == "Campina Grande")
+
+jp = climas %>%
+    filter(!is.na(chuva))%>%
+    filter(cidade == "João Pessoa")
+
+vol_chuvas_jp = jp %>%
+    ggplot(aes(x = chuva, y = tmedia)) +
+    geom_point(aes(colour = tmedia)) +
+    scale_colour_gradient2(low = "yellow", mid = "green" , high = "blue", midpoint = 16) +
+    geom_smooth(color = "red",size = 1) +
+    scale_y_continuous(limits = c(20,30), breaks = seq(5,30,5)) +
+    xlab("Quantidade de Chuvas - JP") +  ylab ("Temperatura Média ( ºC )")
+
+vol_chuvas_cg = cg %>%
+    ggplot(aes(x = chuva, y = tmedia)) +
+    geom_point(aes(colour = tmedia)) +
+    scale_colour_gradient2(low = "yellow", mid = "green" , high = "blue", midpoint = 16) +
+    geom_smooth(color = "red",size = .5) +
+    scale_y_continuous(limits = c(20,30), breaks = seq(5,30,5)) +
+    xlab("Quantidade de Chuvas - CG") +  ylab ("Temperatura Média ( ºC )")
+
+grid.arrange(vol_chuvas_cg, vol_chuvas_jp, ncol = 2, top="Temperatura Média por Quantidade de Chuvas", bottom="Quantidade de Chuva")
+
+```
+
+A distribuição apresenta o volume de chuvas em função da temperatura. É possível observar que a temperatura é influenciada pelo aumento do volume de chuvas. A linha traçada apresenta a média dessa variabilidade em função dos dados, alem disso a área sombreada denota o intervalo de previsibilidade da temperatura em função do volume de chuvas para mais ou para menos. Por fim quanto mais elevada a temperatura para uma cidade, mais é acentuada a queda de temperatura com o aumento do volume de chuvas.
+
+
 ### A distribuição é diferente em meses específicos? 
 
+```{r}
+cg %>%
+    filter(ano >= 1992) %>% 
+    ggplot(aes(x = chuva)) + 
+    geom_density(alpha = .4, fill = "#00A6ED") + 
+    labs(x="Quantidade de Chuva", y="")+
+    facet_wrap(~ mes) 
+```
+
+Em um apanhado da quantidade de chuvas em Campina Grande é possível observar que a distribuição apresenta diferenças em meses específicos, que se enquadram justamente com o período equivalente as estações do ano. Entre os meses de Setembro e Janeiro há pouca ou nenhuma incidência de chuvas, que são aproximadamente equivalente as estações da primavera e verão.
+
+```{r}
+jp %>%
+    filter(ano >= 1992) %>% 
+    ggplot(aes(x = chuva)) + 
+    geom_density(alpha = .4, fill = "#00A6ED") + 
+    labs(x="Quantidade de Chuva", y="")+
+    facet_wrap(~ mes) 
+```
+
+Em um apanhado da quantidade de chuvas em João Pessoa  é possível observar que a distribuição também apresenta diferenças em meses específicos, com períodos em que há pouca ou nenhuma incidência de chuvas.
